@@ -118,8 +118,9 @@
   .modal-close { position: absolute; top: 14px; right: 18px; background: transparent; border: none; font-size: 24px; line-height: 1; cursor: pointer; color: var(--muted-fg); }
   .modal-close:hover { color: var(--fg); }
 
-  .pdf-frame { width: 100%; aspect-ratio: 8.5 / 11; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--muted-bg); }
-  .pdf-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+  main:has(#onepager.active) { padding: 24px; }
+  #onepager.active { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 48px); }
+  .pdf-full { display: block; width: auto; height: auto; max-width: 100%; max-height: calc(100vh - 48px); border-radius: 4px; box-shadow: 0 12px 44px rgba(0,0,0,0.22); }
 
   @media (max-width: 880px) {
     .shell { grid-template-columns: 1fr; }
@@ -211,17 +212,7 @@
 
     <!-- 02 ONE-PAGER -->
     <section class="panel" id="onepager">
-      <p class="sec-label">02 · Deliverable</p>
-      <h1>Broker 1-pager</h1>
-
-      <div class="pdf-frame">
-        <iframe src="JetHQ-Selling-with-the-Hub.pdf#view=FitH" title="Broker 1-pager: Selling with the Hub" loading="lazy"></iframe>
-      </div>
-      <p style="margin:14px 0 0; font-size:13px;"><a href="JetHQ-Selling-with-the-Hub.pdf" target="_blank" rel="noopener">Open the PDF in a new tab</a> <span style="color:var(--muted-fg);">to download or print.</span></p>
-
-      <div style="margin-top:18px;">
-        <button class="cta" onclick="document.getElementById('rationaleModal').classList.add('open')">View the rationale</button>
-      </div>
+      <img class="pdf-full" src="jethq-hub-1pager.png" alt="Selling with the Hub — JetHQ broker 1-pager">
     </section>
 
   </main>
