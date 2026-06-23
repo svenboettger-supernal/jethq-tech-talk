@@ -1,0 +1,293 @@
+<title>JetHQ Broker Tech Talk</title>
+<style>
+  :root {
+    --bg: hsl(33 20% 97%);
+    --card: hsl(30 8% 99%);
+    --sidebar: hsl(33 22% 87%);
+    --action: hsl(167 16% 48%);
+    --action-hover: hsl(167 14% 34%);
+    --action-subtle: hsl(167 14% 90%);
+    --border: hsl(33 18% 80%);
+    --border-strong: hsl(33 14% 67%);
+    --muted-bg: hsl(33 22% 89%);
+    --muted-fg: hsl(33 10% 34%);
+    --placeholder: hsl(33 12% 50%);
+    --fg: hsl(33 4% 6%);
+    --success-bg: hsl(139 76% 97%); --success-fg: hsl(142 72% 29%); --success-bd: hsl(141 79% 85%);
+    --warning-bg: hsl(48 100% 96%); --warning-fg: hsl(26 91% 37%); --warning-bd: hsl(48 97% 77%);
+    --info-bg: hsl(214 99% 97%);    --info-fg: hsl(204 64% 44%);    --info-bd: hsl(213 97% 87%);
+    --v-terracotta: hsl(9 41% 55%);
+    --v-slate: hsl(196 13% 50%);
+    --v-olive: hsl(64 13% 45%);
+    --display: Georgia, 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15.5px; line-height: 1.55; margin: 0; -webkit-font-smoothing: antialiased; }
+  h1, h2 { font-family: var(--display); font-weight: 600; letter-spacing: -0.01em; }
+  h1 { font-size: 31px; line-height: 1.18; margin: 0 0 10px; }
+  h2 { font-size: 23px; line-height: 1.25; margin: 0 0 8px; }
+  h3 { font-family: var(--sans); font-size: 17px; font-weight: 600; line-height: 1.3; margin: 0 0 7px; }
+  h4 { font-family: var(--sans); font-size: 14px; font-weight: 600; margin: 0 0 5px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--action); }
+  .sec-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--action); margin: 0 0 12px; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted-fg); margin: 0 0 13px; }
+  .lede { font-size: 16px; color: var(--muted-fg); line-height: 1.5; max-width: 66ch; }
+
+  .shell { display: grid; grid-template-columns: 248px 1fr; min-height: 100vh; }
+  .sidebar { background: var(--sidebar); border-right: 1px solid var(--border); padding: 30px 18px; position: sticky; top: 0; align-self: start; height: 100vh; }
+  .brand { font-family: var(--display); font-size: 18px; font-weight: 600; margin: 0 0 3px; }
+  .brand-sub { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin: 0 0 26px; }
+  nav { display: flex; flex-direction: column; gap: 2px; }
+  nav button { text-align: left; background: transparent; border: none; cursor: pointer; font-family: var(--sans); font-size: 13.5px; color: var(--muted-fg); padding: 9px 12px; border-radius: 6px; display: flex; align-items: baseline; gap: 10px; transition: background .12s, color .12s; width: 100%; }
+  nav button:hover { background: var(--action-subtle); color: var(--fg); }
+  nav button.active { background: var(--card); color: var(--fg); font-weight: 600; box-shadow: 0 1px 1px rgba(0,0,0,.04); }
+  nav button .ix { font-family: var(--mono); font-size: 10.5px; color: var(--placeholder); min-width: 14px; }
+  nav button.active .ix { color: var(--action); }
+  .nav-note { margin-top: 26px; font-size: 11.5px; color: var(--muted-fg); line-height: 1.45; border-top: 1px solid var(--border); padding-top: 14px; }
+
+  main { padding: 52px 56px 88px; max-width: 900px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; }
+  .card + .card { margin-top: 12px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+  section.block { margin-top: 36px; }
+
+  .meta-row { display: flex; flex-wrap: wrap; gap: 9px 22px; font-family: var(--mono); font-size: 12px; color: var(--muted-fg); }
+  .meta-row span strong { color: var(--fg); font-weight: 600; }
+
+  .badge { display: inline-block; border-radius: 6px; padding: 2px 9px; font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: 0.03em; border: 1px solid; }
+  .badge.ready { background: var(--success-bg); color: var(--success-fg); border-color: var(--success-bd); }
+  .badge.build { background: var(--info-bg); color: var(--info-fg); border-color: var(--info-bd); }
+  .badge.call { background: var(--warning-bg); color: var(--warning-fg); border-color: var(--warning-bd); }
+
+  .cta { display: inline-flex; align-items: center; gap: 8px; background: var(--action); color: #fff; border: none; border-radius: 6px; padding: 9px 16px; font-family: var(--sans); font-weight: 500; font-size: 14px; cursor: pointer; }
+  .cta:hover { background: var(--action-hover); }
+
+  .keyfacts { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+  .fact { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 15px; }
+  .fact .n { font-family: var(--display); font-size: 24px; font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
+  .fact .l { font-size: 11.5px; color: var(--muted-fg); margin-top: 7px; line-height: 1.35; }
+  .fact.f0 .n { color: var(--v-terracotta); } .fact.f1 .n { color: var(--v-slate); } .fact.f2 .n { color: var(--v-olive); } .fact.f3 .n { color: var(--action); }
+
+  .clean { list-style: none; padding: 0; margin: 0; }
+  .clean li { position: relative; padding-left: 17px; margin-bottom: 8px; font-size: 14px; line-height: 1.45; }
+  .clean li::before { content: '›'; position: absolute; left: 0; color: var(--action); font-weight: 600; }
+
+  .play { border-top: 1px solid var(--border); padding: 16px 0; }
+  .play:first-of-type { border-top: none; }
+  .play .ph { font-family: var(--mono); font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--action); margin-bottom: 5px; }
+  .play h3 { margin-bottom: 9px; }
+  .play .lines { display: grid; grid-template-columns: 86px 1fr; gap: 5px 14px; font-size: 14px; }
+  .play .lines dt { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--placeholder); padding-top: 2px; }
+  .play .lines dd { margin: 0; }
+
+  .faq { border-top: 1px solid var(--border); padding: 14px 0; }
+  .faq:first-of-type { border-top: none; }
+  .faq .q { font-weight: 600; font-size: 14.5px; margin-bottom: 4px; }
+  .faq .a { color: var(--muted-fg); font-size: 13.5px; margin: 0; }
+
+  .vpc { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .vpc th, .vpc td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .vpc th { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted-fg); font-weight: 500; }
+  .vpc tr td:first-child { color: var(--fg); font-weight: 500; width: 40%; }
+  .vpc tr td:last-child { color: var(--muted-fg); }
+  .scroll-x { overflow-x: auto; }
+
+  .pitch-note { background: var(--muted-bg); border: 1px solid var(--border); border-left: 3px solid var(--action); border-radius: 10px; padding: 20px 22px; font-family: var(--mono); font-size: 12.5px; line-height: 1.65; }
+  .aside { background: var(--card); border: 1px dashed var(--border-strong); border-radius: 10px; padding: 18px 22px; }
+  .aside .tag { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-fg); margin: 0 0 9px; }
+
+  .onepager { background: var(--card); border: 1px solid var(--border-strong); border-radius: 12px; padding: 38px 42px; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .onepager .op-head { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 24px; }
+  .op-foot { border-top: 1px solid var(--border); margin-top: 24px; padding-top: 16px; font-size: 13px; color: var(--muted-fg); }
+  .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; }
+
+  footer.doc { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--placeholder); line-height: 1.5; }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(20,16,12,.45); display: none; align-items: flex-start; justify-content: center; padding: 48px 18px; overflow-y: auto; z-index: 100; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--card); border: 1px solid var(--border-strong); border-radius: 12px; max-width: 720px; width: 100%; padding: 30px 32px 34px; box-shadow: 0 12px 48px rgba(0,0,0,.22); position: relative; }
+  .modal h2 { margin: 0 0 6px; }
+  .modal-close { position: absolute; top: 14px; right: 18px; background: transparent; border: none; font-size: 24px; line-height: 1; cursor: pointer; color: var(--muted-fg); }
+  .modal-close:hover { color: var(--fg); }
+
+  .pdf-frame { width: 100%; aspect-ratio: 8.5 / 11; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--muted-bg); }
+  .pdf-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+  @media (max-width: 880px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    nav { flex-direction: row; flex-wrap: wrap; }
+    nav button { width: auto; }
+    .nav-note { display: none; }
+    main { padding: 30px 20px 64px; }
+    .grid-2, .grid-3, .keyfacts { grid-template-columns: 1fr; }
+    .onepager { padding: 24px 20px; }
+    .play .lines { grid-template-columns: 1fr; }
+  }
+  @media print {
+    .sidebar, .toolbar, .nav-note { display: none !important; }
+    .shell { display: block; }
+    main { padding: 0; max-width: none; }
+    .panel { display: none !important; }
+    .panel.active { display: block !important; }
+    .onepager { border: none; box-shadow: none; padding: 0; }
+    body { background: #fff; }
+  }
+</style>
+
+<div class="shell">
+  <aside class="sidebar">
+    <p class="brand">JetHQ × Supernal</p>
+    <p class="brand-sub">Tech Talk Briefing</p>
+    <nav>
+      <button data-p="briefing" class="active"><span class="ix">01</span> Briefing</button>
+      <button data-p="onepager"><span class="ix">02</span> Broker 1-pager</button>
+    </nav>
+  </aside>
+
+  <main>
+
+    <!-- 01 BRIEFING -->
+    <section class="panel active" id="briefing">
+      <h1>JetHQ Broker Tech Talk</h1>
+      <p class="lede">On Thursday, July 2 (9:00 ET) JetHQ runs an internal session on using the Hub to win and serve business. Brooks invited Supernal (Jens / Sven) to attend as technical support.</p>
+
+      <section class="block">
+        <p class="sec-label">Objective</p>
+        <div class="card">
+          <p style="margin:0;">Deliver a genuinely useful support moment on July 2, strong enough that JetHQ wants Supernal in the Tech Talk regularly, and back it with a short document on how we would position the Hub in their sales process.</p>
+        </div>
+      </section>
+
+      <section class="block">
+        <p class="sec-label">Release notes</p>
+        <h1 style="margin-top:4px;">Recent Hub updates</h1>
+        <p class="lede">What shipped recently, and what is close behind.</p>
+      </section>
+
+      <section class="block">
+        <p class="sec-label">Recently shipped</p>
+        <div class="card">
+          <ul class="clean">
+            <li><strong>Quarterly Bluebook history</strong>: every valuation upload is now stored by quarter, building the historical dataset behind valuation and market trends.</li>
+            <li><strong>New dashboard and full photo sets</strong> on every aircraft page.</li>
+            <li><strong>Market-report builder</strong>: choose which serials show, save named templates, export to PDF and Excel.</li>
+            <li><strong>New market metrics</strong>: absorption rate, percent for sale, average time to sell.</li>
+            <li><strong>"Withdrawn" status</strong> with its own report tab, auto-moving to Off-Market after 90 days.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="block">
+        <p class="sec-label">In progress</p>
+        <div class="card">
+          <ul class="clean">
+            <li><strong>FMV report review step</strong>: edit any field on a report before it is generated.</li>
+            <li><strong>Quarterly backfill</strong>: loading prior quarters of Bluebook data so the trend charts have history to draw on.</li>
+            <li><strong>Pulse usage dashboard</strong> rolling out to the team, showing adoption by person and team.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="block">
+        <p class="sec-label">Coming next</p>
+        <div class="card">
+          <ul class="clean">
+            <li><strong>Valuation and recent-sales trend charts</strong>, unlocked by the quarterly history.</li>
+            <li><strong>Search across all JetNet companies</strong> in the Hub.</li>
+            <li><strong>Filter aircraft by criteria</strong> (e.g. hours) directly on market reports.</li>
+          </ul>
+        </div>
+      </section>
+    </section>
+
+    <!-- 02 ONE-PAGER -->
+    <section class="panel" id="onepager">
+      <p class="sec-label">02 · Deliverable</p>
+      <h1>Broker 1-pager</h1>
+
+      <div class="pdf-frame">
+        <iframe src="JetHQ-Selling-with-the-Hub.pdf#view=FitH" title="Broker 1-pager: Selling with the Hub" loading="lazy"></iframe>
+      </div>
+      <p style="margin:14px 0 0; font-size:13px;"><a href="JetHQ-Selling-with-the-Hub.pdf" target="_blank" rel="noopener">Open the PDF in a new tab</a> <span style="color:var(--muted-fg);">to download or print.</span></p>
+
+      <div style="margin-top:18px;">
+        <button class="cta" onclick="document.getElementById('rationaleModal').classList.add('open')">View the rationale</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="modal-overlay" id="rationaleModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <button class="modal-close" aria-label="Close" onclick="document.getElementById('rationaleModal').classList.remove('open')">&times;</button>
+    <p class="sec-label">Rationale</p>
+    <h2 style="font-size:22px;">Value drivers and fit</h2>
+    <p style="color:var(--muted-fg); font-size:13.5px; max-width:60ch;">Why these plays: the Hub's strongest value drivers, mapped to broker pains and gains.</p>
+
+    <p class="sec-label" style="margin-top:20px;">Top value drivers</p>
+    <ul class="clean">
+      <li><strong>One current source of truth.</strong> JetNet data plus JetHQ's own tracking, intel, history and photos in one record, updated automatically and audited nightly.</li>
+      <li><strong>Instant branded market reports.</strong> Custom builder with selective serial visibility, saved templates, PDF and Excel.</li>
+      <li><strong>Decision-grade market metrics.</strong> Absorption rate, percent for sale, average time to sell: the figures that justify an exclusive and anchor a price.</li>
+      <li><strong>Valuations on demand.</strong> FMV reports on JetHQ's template, with a review-and-edit step before issue.</li>
+      <li><strong>Complete aircraft pages.</strong> Full photo sets, pedigree, and combined notes-and-history intel.</li>
+      <li><strong>Anywhere access.</strong> Live in the field across OKC and Dubai.</li>
+    </ul>
+
+    <p class="sec-label" style="margin-top:20px;">Pains relieved</p>
+    <div class="scroll-x">
+      <table class="vpc">
+        <thead><tr><th>Broker pain</th><th>Hub response</th></tr></thead>
+        <tbody>
+          <tr><td>Cannot prove market expertise on the spot</td><td>Branded market report pulled live in the pitch</td></tr>
+          <tr><td>Scattered, stale data across JetNet and notes</td><td>One auto-updated, nightly-audited record</td></tr>
+          <tr><td>Slow manual comps and research</td><td>One-click reports and on-demand valuations</td></tr>
+          <tr><td>Out-data-ed by larger data houses</td><td>184 markets, ~90k aircraft, accuracy checked nightly</td></tr>
+          <tr><td>Pricing disputes erode trust</td><td>Defensible FMV plus absorption / time-to-sell metrics</td></tr>
+          <tr><td>Days-on-market risk to seller ROI</td><td>Time-to-sell and absorption data to price and position</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="sec-label" style="margin-top:20px;">Gains created</p>
+    <div class="scroll-x">
+      <table class="vpc">
+        <thead><tr><th>Broker gain</th><th>Hub response</th></tr></thead>
+        <tbody>
+          <tr><td>Win more mandates and exclusives</td><td>Pitch-ready report that out-knows the room</td></tr>
+          <tr><td>Negotiate and price from data</td><td>Market metrics, FMV and value-rank view</td></tr>
+          <tr><td>Faster credible turnaround</td><td>Reports and valuations generated on demand</td></tr>
+          <tr><td>Modern, data-driven positioning</td><td>On-brand reports and a clean, photo-rich interface</td></tr>
+          <tr><td>In-the-field intelligence</td><td>Web access across devices and time zones</td></tr>
+          <tr><td>Demonstrable seller ROI</td><td>Pricing and time-to-sell evidence</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="aside" style="margin-top:20px;">
+      <p class="tag">Caveats</p>
+      <p style="margin:0;font-size:13px;color:var(--muted-fg);">Usage is evidenced (India broker; signed Legacy 650 / Falcon 2000LX demo); no closed-deal-from-Hub outcome is recorded yet, so avoid attribution claims. Accuracy figures (~97% tracked, ~80% of updates automated) are approximate internal numbers, useful as reassurance, not headline promises. Quarterly guides (Bluebook, VRef) lag the market, which is where a current consolidated view adds value.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const buttons = document.querySelectorAll('nav button');
+  const panels = document.querySelectorAll('.panel');
+  buttons.forEach(b => b.addEventListener('click', () => {
+    const id = b.dataset.p;
+    buttons.forEach(x => x.classList.toggle('active', x === b));
+    panels.forEach(p => p.classList.toggle('active', p.id === id));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }));
+</script>
